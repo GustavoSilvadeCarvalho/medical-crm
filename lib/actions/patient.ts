@@ -8,6 +8,8 @@ export async function createPatient(formData: FormData) {
   const email = formData.get("email") as string;
   const phone = formData.get("phone") as string;
   const gender = formData.get("gender") as string;
+  const source = formData.get("source") as string | null;
+  const status = (formData.get("status") as string) ?? undefined;
 
   await db.patient.create({
     data: {
@@ -16,6 +18,8 @@ export async function createPatient(formData: FormData) {
       phone,
       gender,
       birthDate: new Date(),
+      source: source ?? undefined,
+      status: status ?? undefined,
     },
   });
 
@@ -27,6 +31,8 @@ export async function updatePatient(patientId: string, formData: FormData) {
   const email = formData.get("email") as string;
   const phone = formData.get("phone") as string;
   const gender = formData.get("gender") as string;
+  const source = formData.get("source") as string | null;
+  const status = formData.get("status") as string | null;
 
   await db.patient.update({
     where: { id: patientId },
@@ -35,6 +41,8 @@ export async function updatePatient(patientId: string, formData: FormData) {
       email,
       phone,
       gender,
+      ...(source ? { source } : {}),
+      ...(status ? { status } : {}),
     },
   });
 

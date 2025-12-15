@@ -12,6 +12,7 @@ import {
     XCircle,
     AlertCircle
 } from "lucide-react";
+
 import { RecordModal } from "@/components/forms/RecordModal";
 import { EditPatientModal } from "@/components/forms/EditPatientModal";
 import { AppointmentModal } from "@/components/forms/AppointmentModal";
@@ -23,7 +24,9 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { updateAppointmentStatus } from "@/lib/actions/appointment";
+import { createInteractionForPatient } from "@/lib/actions/interaction";
 import Link from "next/link";
+import InteractionsList from "@/components/interactions/InteractionsList";
 import { DeletePatientButton } from "@/components/forms/DeletePatientButton";
 
 export default async function PatientDetailsPage({
@@ -39,7 +42,8 @@ export default async function PatientDetailsPage({
         where: { id: resolvedParams.id },
         include: {
             appointments: { orderBy: { date: "desc" } },
-            medicalRecords: { orderBy: { createdAt: "desc" } }
+            medicalRecords: { orderBy: { createdAt: "desc" } },
+            interactions: { orderBy: { occurredAt: "desc" } }
         },
     });
 
@@ -85,6 +89,8 @@ export default async function PatientDetailsPage({
                         email={patient.email}
                         phone={patient.phone}
                         gender={patient.gender}
+                        status={patient.status}
+                        source={patient.source}
                     />
                     {isAdmin && (
                         <DeletePatientButton patientId={patient.id} patientName={patient.name} />
@@ -96,6 +102,7 @@ export default async function PatientDetailsPage({
                 <TabsList>
                     <TabsTrigger value="appointments">Histórico de Consultas</TabsTrigger>
                     <TabsTrigger value="records">Prontuário Médico</TabsTrigger>
+                    <TabsTrigger value="relationship">Relacionamento</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="appointments" className="mt-4">
@@ -220,6 +227,28 @@ export default async function PatientDetailsPage({
                                         </div>
                                     ))
                                 )}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+                <TabsContent value="relationship" className="mt-4">
+                    <Card>
+                        <CardHeader className="flex items-center justify-between">
+                            <div>
+                                <CardTitle>Relacionamento</CardTitle>
+                                <CardDescription>Anotações e interações com o paciente.</CardDescription>
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <form action={createInteractionForPatient.bind(null, patient.id)} className="mb-4">
+                                <div className="flex gap-2">
+                                    <input name="content" placeholder="Adicionar nota rápida..." className="flex-1 input bg-card border rounded px-3 py-2" required />
+                                    <button className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded">Adicionar</button>
+                                </div>
+                            </form>
+
+                            <div className="space-y-3">
+                                <InteractionsList interactions={patient.interactions} />
                             </div>
                         </CardContent>
                     </Card>

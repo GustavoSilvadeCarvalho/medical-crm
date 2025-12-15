@@ -4,7 +4,11 @@ generator client {
 
 datasource db {
   provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
+
+// Enums were removed to ensure compatibility with the local connector.
+// We store these values as strings (e.g. "LEAD", "GOOGLE", "WHATSAPP").
 
 // --- MODELOS DO SISTEMA (Tabelas) ---
 
@@ -16,21 +20,24 @@ model Patient {
   gender        String    
   birthDate     DateTime
   
-  // Detalhes Médicos
-  notes         String?   
-  
-  // Relacionamentos
+  notes         String? 
+
+  status        String @default("LEAD")
+  source        String?   @default("OTHER")
+  interactions  Interaction[]
+
   appointments  Appointment[]
   medicalRecords MedicalRecord[]
 
   createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model Appointment {
   id          String    @id @default(cuid())
   date        DateTime
-  reason      String    // Ex: "Dor de cabeça", "Checkup"
-  status      String    @default("PENDING") // PENDING, COMPLETED, CANCELLED
+  reason      String
+  status      String    @default("PENDING")
   
   patientId   String
   patient     Patient   @relation(fields: [patientId], references: [id])
@@ -56,4 +63,18 @@ model User {
   role      String   @default("USER")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Interaction {
+  id          String          @id @default(cuid())
+  
+  content     String
+  type        String @default("NOTE")
+
+  occurredAt  DateTime        @default(now())
+
+  patientId   String
+  patient     Patient         @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime        @default(now())
 }

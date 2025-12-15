@@ -28,9 +28,11 @@ interface Props {
     email?: string | null;
     phone?: string | null;
     gender?: string | null;
+    status?: string | null;
+    source?: string | null;
 }
 
-export function EditPatientModal({ patientId, name, email, phone, gender }: Props) {
+export function EditPatientModal({ patientId, name, email, phone, gender, status, source }: Props) {
     const [open, setOpen] = useState(false);
     const { toast } = useToast();
 
@@ -70,6 +72,26 @@ export function EditPatientModal({ patientId, name, email, phone, gender }: Prop
                         <Input id="email" name="email" type="email" defaultValue={email ?? ""} placeholder="joao@exemplo.com" />
                     </div>
 
+                    <div className="grid gap-2">
+                        <Label htmlFor="source">Como nos conheceu?</Label>
+                        <Select name="source" defaultValue={source ?? undefined}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="GOOGLE">Google</SelectItem>
+                                <SelectItem value="INSTAGRAM">Instagram</SelectItem>
+                                <SelectItem value="FACEBOOK">Facebook</SelectItem>
+                                <SelectItem value="TIKTOK">TikTok</SelectItem>
+                                <SelectItem value="FRIEND_REFERRAL">Indicação de amigo</SelectItem>
+                                <SelectItem value="DOCTOR_REFERRAL">Indicação de médico</SelectItem>
+                                <SelectItem value="INSURANCE">Convênio</SelectItem>
+                                <SelectItem value="PASSING_BY">Passando na rua</SelectItem>
+                                <SelectItem value="OTHER">Outro</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="phone">Telefone</Label>
@@ -88,6 +110,23 @@ export function EditPatientModal({ patientId, name, email, phone, gender }: Prop
                                 </SelectContent>
                             </Select>
                         </div>
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="status">Status</Label>
+                        <Select name="status" defaultValue={status ?? undefined}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="LEAD">Lead</SelectItem>
+                                <SelectItem value="SCHEDULED">Agendado</SelectItem>
+                                <SelectItem value="ACTIVE">Ativo</SelectItem>
+                                <SelectItem value="WAITING_RETURN">Aguardando Retorno</SelectItem>
+                                <SelectItem value="INACTIVE">Inativo</SelectItem>
+                                <SelectItem value="ARCHIVED">Arquivado</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <div className="flex justify-end mt-4">

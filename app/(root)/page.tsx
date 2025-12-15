@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Calendar, DollarSign, Activity } from "lucide-react";
 import { db } from "@/lib/db";
 import { AppointmentChart } from "@/components/dashboard/appointment-chart";
+import SourcePie from "@/components/dashboard/source-pie";
 import { RecentAppointments } from "@/components/dashboard/recent-appointments";
 
 async function getLast7DaysStats() {
@@ -68,6 +69,15 @@ export default async function DashboardPage() {
         },
     });
 
+    // Build source distribution for patients (for the pie chart)
+    const patientSources = await db.patient.findMany({ select: { source: true } });
+    const sourceCounts: Record<string, number> = {};
+    for (const p of patientSources) {
+        const key = p.source ?? 'OTHER';
+        sourceCounts[key] = (sourceCounts[key] ?? 0) + 1;
+    }
+    const sourceData = Object.entries(sourceCounts).map(([name, value]) => ({ name, value }));
+
     return (
         <div className="space-y-6">
             <h1 className="text-3xl font-bold tracking-tight">Dashboard Médico</h1>
@@ -107,18 +117,20 @@ export default async function DashboardPage() {
                 </Card>
             </div>
 
+            {/* Pie chart will be rendered after the main charts - kept here logically but moved below */}
+
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                <Card className="col-span-4 h-[350px]">
+                <Card className="col-span-1 md:col-span-2 lg:col-span-4 h-[350px]">
                     <CardHeader>
                         <CardTitle>Volume de Atendimentos</CardTitle>
                         <p className="text-sm text-slate-500">Últimos 7 dias</p>
                     </CardHeader>
                     <CardContent className="h-[250px]">
-                        <AppointmentChart data={chartData} />
+                        <AppointmentChart data={chartData} height={250} />
                     </CardContent>
                 </Card>
 
-                <Card className="col-span-3 h-[350px]">
+                <Card className="col-span-1 md:col-span-2 lg:col-span-3 h-[350px]">
                     <CardHeader>
                         <CardTitle>Próximos Agendamentos</CardTitle>
                         <p className="text-sm text-slate-500">
@@ -127,6 +139,18 @@ export default async function DashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <RecentAppointments appointments={upcomingAppointments} />
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-1">
+                <Card className="h-[350px]">
+                    <CardHeader>
+                        <CardTitle>Como nos conheceram</CardTitle>
+                        <p className="text-sm text-slate-500">Distribuição das fontes de aquisição</p>
+                    </CardHeader>
+                    <CardContent className="h-[250px]">
+                        <SourcePie data={sourceData} height={250} />
                     </CardContent>
                 </Card>
             </div>

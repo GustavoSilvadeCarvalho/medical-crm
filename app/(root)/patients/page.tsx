@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+
 import { PatientModal } from "@/components/forms/PatientModal";
 import { Search } from "@/components/ui/search";
 import {
@@ -19,18 +19,39 @@ const formatDate = (date: Date) => {
     }).format(date);
 };
 
+const formatPatientStatus = (status: string | null | undefined) => {
+    switch (status) {
+        case "LEAD":
+            return "Lead";
+        case "SCHEDULED":
+            return "Agendado";
+        case "ACTIVE":
+            return "Ativo";
+        case "WAITING_RETURN":
+            return "Aguardando Retorno";
+        case "INACTIVE":
+            return "Inativo";
+        case "ARCHIVED":
+            return "Arquivado";
+        default:
+            return status ?? "-";
+    }
+};
+
 export default async function PatientsPage({
-  searchParams,
+    searchParams,
 }: {
-  searchParams?: Promise<{ query?: string }>;
+    searchParams?: Promise<{ query?: string; status?: string }>;
 }) {
 
     const query = (await searchParams)?.query || "";
+    const statusFilter = (await searchParams)?.status || "";
     const patients = await db.patient.findMany({
         where: {
-        name: {
-            contains: query,
-        },
+            name: {
+                contains: query,
+            },
+            ...(statusFilter ? { status: statusFilter } : {}),
         },
         orderBy: { createdAt: "desc" },
         include: { appointments: true }
@@ -49,7 +70,18 @@ export default async function PatientsPage({
             </div>
 
             <div className="flex items-center justify-between">
-                <Search />
+                <div className="flex items-center gap-4">
+                    <Search />
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm text-slate-600">Ver apenas:</span>
+                        <Link href="/patients?status=LEAD" className={`text-sm px-2 py-1 rounded ${statusFilter === 'LEAD' ? 'bg-blue-600 text-white' : 'bg-card'}`}>
+                            Leads
+                        </Link>
+                        <Link href="/patients" className={`text-sm px-2 py-1 rounded ${!statusFilter ? 'bg-blue-600 text-white' : 'bg-card'}`}>
+                            Todos
+                        </Link>
+                    </div>
+                </div>
             </div>
 
             <div className="rounded-md border bg-card">
@@ -57,6 +89,7 @@ export default async function PatientsPage({
                     <TableHeader>
                         <TableRow>
                             <TableHead>Nome</TableHead>
+                            <TableHead>Status</TableHead>
                             <TableHead>Email</TableHead>
                             <TableHead>Telefone</TableHead>
                             <TableHead>Cadastrado em</TableHead>
@@ -71,6 +104,16 @@ export default async function PatientsPage({
                                         <span>{patient.name}</span>
                                         <span className="text-xs text-muted-foreground">{patient.gender}</span>
                                     </div>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge variant={
+                                        patient.status === 'ACTIVE' ? 'default' :
+                                            patient.status === 'LEAD' ? 'secondary' :
+                                                patient.status === 'INACTIVE' ? 'destructive' :
+                                                    'outline'
+                                    }>
+                                        {formatPatientStatus(patient.status)}
+                                    </Badge>
                                 </TableCell>
                                 <TableCell>{patient.email || "-"}</TableCell>
                                 <TableCell>{patient.phone}</TableCell>
@@ -87,7 +130,7 @@ export default async function PatientsPage({
 
                         {patients.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={5} className="h-24 text-center">
+                                <TableCell colSpan={6} className="h-24 text-center">
                                     Nenhum paciente encontrado.
                                 </TableCell>
                             </TableRow>

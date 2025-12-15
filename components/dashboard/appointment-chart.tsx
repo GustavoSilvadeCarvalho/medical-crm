@@ -8,10 +8,9 @@ interface ChartProps {
         total: number;
     }[];
 }
-
-export function AppointmentChart({ data }: ChartProps) {
+export function AppointmentChart({ data, height = 250 }: ChartProps & { height?: number }) {
     return (
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={height}>
             <BarChart data={data}>
                 <XAxis
                     dataKey="name"

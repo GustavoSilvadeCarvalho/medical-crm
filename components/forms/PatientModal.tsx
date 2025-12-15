@@ -61,6 +61,26 @@ export function PatientModal() {
                     </div>
 
                     <div className="grid gap-2">
+                        <Label htmlFor="source">Como nos conheceu?</Label>
+                        <Select name="source" required>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="GOOGLE">Google</SelectItem>
+                                <SelectItem value="INSTAGRAM">Instagram</SelectItem>
+                                <SelectItem value="FACEBOOK">Facebook</SelectItem>
+                                <SelectItem value="TIKTOK">TikTok</SelectItem>
+                                <SelectItem value="FRIEND_REFERRAL">Indicação de amigo</SelectItem>
+                                <SelectItem value="DOCTOR_REFERRAL">Indicação de médico</SelectItem>
+                                <SelectItem value="INSURANCE">Convênio</SelectItem>
+                                <SelectItem value="PASSING_BY">Passando na rua</SelectItem>
+                                <SelectItem value="OTHER">Outro</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="grid gap-2">
                         <Label htmlFor="email">Email</Label>
                         <Input id="email" name="email" type="email" placeholder="joao@exemplo.com" />
                     </div>
