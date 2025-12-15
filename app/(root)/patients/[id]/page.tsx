@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { auth } from "@/auth";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,6 +13,7 @@ import {
     AlertCircle
 } from "lucide-react";
 import { RecordModal } from "@/components/forms/RecordModal";
+import { EditPatientModal } from "@/components/forms/EditPatientModal";
 import { AppointmentModal } from "@/components/forms/AppointmentModal";
 import {
     DropdownMenu,
@@ -22,12 +24,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { updateAppointmentStatus } from "@/lib/actions/appointment";
 import Link from "next/link";
+import { DeletePatientButton } from "@/components/forms/DeletePatientButton";
 
 export default async function PatientDetailsPage({
     params,
 }: {
     params: Promise<{ id: string }>;
 }) {
+    const session = await auth();
+    const isAdmin = (session?.user as { role?: string })?.role === "ADMIN";
     const resolvedParams = await params;
 
     const patient = await db.patient.findUnique({
@@ -70,12 +75,20 @@ export default async function PatientDetailsPage({
                     <AppointmentModal patientId={patient.id} />
                     <Button variant="outline" className="gap-2" asChild>
                         <Link href={`/patients/${patient.id}/certificate`} target="_blank">
-                        <FileText className="h-4 w-4" /> 
-                        Atestado
+                            <FileText className="h-4 w-4" />
+                            Atestado
                         </Link>
                     </Button>
-                    <Button variant="outline">Editar Dados</Button>
-                    <Button variant="destructive">Excluir</Button>
+                    <EditPatientModal
+                        patientId={patient.id}
+                        name={patient.name}
+                        email={patient.email}
+                        phone={patient.phone}
+                        gender={patient.gender}
+                    />
+                    {isAdmin && (
+                        <DeletePatientButton patientId={patient.id} patientName={patient.name} />
+                    )}
                 </div>
             </div>
 

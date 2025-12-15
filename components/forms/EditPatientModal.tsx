@@ -12,8 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus } from "lucide-react";
-import { createPatient } from "@/lib/actions/patient";
+import { updatePatient } from "@/lib/actions/patient";
 import { useToast } from "@/components/ui/toast";
 import {
     Select,
@@ -23,33 +22,39 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 
-export function PatientModal() {
+interface Props {
+    patientId: string;
+    name?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    gender?: string | null;
+}
+
+export function EditPatientModal({ patientId, name, email, phone, gender }: Props) {
     const [open, setOpen] = useState(false);
     const { toast } = useToast();
 
     async function handleAction(formData: FormData) {
         try {
-            await createPatient(formData);
-            toast({ title: "Sucesso", description: "Paciente criado.", type: "success" });
+            await updatePatient(patientId, formData);
+            toast({ title: "Sucesso", description: "Dados atualizados.", type: "success" });
             setOpen(false);
         } catch {
-            toast({ title: "Erro", description: "Não foi possível criar o paciente.", type: "error" });
+            toast({ title: "Erro", description: "Não foi possível atualizar.", type: "error" });
         }
     }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                    <Plus className="h-4 w-4 mr-2" /> Novo Paciente
-                </Button>
+                <Button variant="outline">Editar Dados</Button>
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-106.25">
                 <DialogHeader>
-                    <DialogTitle>Novo Paciente</DialogTitle>
+                    <DialogTitle>Editar Paciente</DialogTitle>
                     <DialogDescription>
-                        Preencha os dados básicos para iniciar o cadastro.
+                        Atualize as informações do paciente.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -57,23 +62,23 @@ export function PatientModal() {
 
                     <div className="grid gap-2">
                         <Label htmlFor="name">Nome Completo</Label>
-                        <Input id="name" name="name" placeholder="Ex: João Silva" required />
+                        <Input id="name" name="name" defaultValue={name ?? ""} placeholder="Ex: João Silva" required />
                     </div>
 
                     <div className="grid gap-2">
                         <Label htmlFor="email">Email</Label>
-                        <Input id="email" name="email" type="email" placeholder="joao@exemplo.com" />
+                        <Input id="email" name="email" type="email" defaultValue={email ?? ""} placeholder="joao@exemplo.com" />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="phone">Telefone</Label>
-                            <Input id="phone" name="phone" placeholder="(11) 99999-9999" required />
+                            <Input id="phone" name="phone" defaultValue={phone ?? ""} placeholder="(11) 99999-9999" required />
                         </div>
 
                         <div className="grid gap-2">
                             <Label htmlFor="gender">Gênero</Label>
-                            <Select name="gender" required>
+                            <Select name="gender" defaultValue={gender ?? ""} required>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Selecione" />
                                 </SelectTrigger>
@@ -86,7 +91,7 @@ export function PatientModal() {
                     </div>
 
                     <div className="flex justify-end mt-4">
-                        <Button type="submit">Salvar Cadastro</Button>
+                        <Button type="submit">Salvar Alterações</Button>
                     </div>
 
                 </form>

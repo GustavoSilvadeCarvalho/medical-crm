@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
 }
 
 // --- MODELOS DO SISTEMA (Tabelas) ---
@@ -47,4 +46,14 @@ model MedicalRecord {
   patient     Patient   @relation(fields: [patientId], references: [id])
   
   createdAt   DateTime  @default(now())
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("USER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

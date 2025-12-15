@@ -1,12 +1,10 @@
-"use client"
-
 import {
     LayoutDashboard,
     Users,
     CalendarDays,
     Settings,
-    Activity
 } from "lucide-react"
+import { auth } from "@/auth"
 
 import {
     Sidebar,
@@ -22,6 +20,7 @@ import {
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ModeToggle } from "./mode-toggle";
+import { SignOutButton } from "./ui/sign-out-button";
 
 const items = [
     {
@@ -46,7 +45,17 @@ const items = [
     },
 ]
 
-export function AppSidebar() {
+export async function AppSidebar() {
+    const session = await auth()
+    const name = session?.user?.name || ""
+    const initials = name
+        ? name
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .substring(0, 2)
+            .toUpperCase()
+        : "??"
     return (
         <Sidebar collapsible="icon">
             <SidebarContent>
@@ -70,13 +79,14 @@ export function AppSidebar() {
                 </SidebarGroup>
             </SidebarContent>
 
-            <SidebarFooter>
+            <SidebarFooter className="flex items-center justify-between">
                 <Avatar className="h-16 w-16">
-                        <AvatarImage src="" />
-                        <AvatarFallback className="bg-blue-100 text-blue-600 text-xl font-bold">
-                            GS
-                        </AvatarFallback>
-                    </Avatar>
+                    <AvatarImage src={session?.user?.image ?? ""} />
+                    <AvatarFallback className="bg-blue-100 text-blue-600 text-xl font-bold">
+                        {initials}
+                    </AvatarFallback>
+                </Avatar>
+                <SignOutButton />
             </SidebarFooter>
         </Sidebar>
     )

@@ -30,7 +30,7 @@ export function RecordModal({ patientId }: { patientId: string }) {
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-125">
                 <DialogHeader>
                     <DialogTitle>Adicionar Evolução</DialogTitle>
                     <DialogDescription>
