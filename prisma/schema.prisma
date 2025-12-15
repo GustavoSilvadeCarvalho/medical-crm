@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// --- MODELOS DO SISTEMA (Tabelas) ---
+
+model Patient {
+  id            String    @id @default(cuid())
+  name          String
+  email         String?   
+  phone         String
+  gender        String    
+  birthDate     DateTime
+  
+  // Detalhes Médicos
+  notes         String?   
+  
+  // Relacionamentos
+  appointments  Appointment[]
+  medicalRecords MedicalRecord[]
+
+  createdAt     DateTime  @default(now())
+}
+
+model Appointment {
+  id          String    @id @default(cuid())
+  date        DateTime
+  reason      String    // Ex: "Dor de cabeça", "Checkup"
+  status      String    @default("PENDING") // PENDING, COMPLETED, CANCELLED
+  
+  patientId   String
+  patient     Patient   @relation(fields: [patientId], references: [id])
+  
+  createdAt   DateTime  @default(now())
+}
+
+model MedicalRecord {
+  id          String    @id @default(cuid())
+  description String    // Prontuário
+  
+  patientId   String
+  patient     Patient   @relation(fields: [patientId], references: [id])
+  
+  createdAt   DateTime  @default(now())
+}
